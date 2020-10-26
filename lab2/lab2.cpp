@@ -29,7 +29,7 @@ private:
 	chrono::time_point<chrono::steady_clock> start, end;
 };
 mutex m;
-int ci = 1000;
+int ci = 1024;
 int lock_ = 0;
 
 void Inc1(int* arr) {
@@ -39,7 +39,7 @@ void Inc1(int* arr) {
 		arr[lock_]++;
 		lock_++;
 		m.unlock();
-		this_thread::sleep_for(chrono::milliseconds(10));
+		//this_thread::sleep_for(chrono::milliseconds(10));
 	}
 }
 
@@ -49,7 +49,7 @@ void Inc2(int* arr) {
 	while (ai.load() < ci)
 	{
 		arr[ai.fetch_add(1)]++;
-		this_thread::sleep_for(chrono::milliseconds(10));
+		//this_thread::sleep_for(chrono::milliseconds(10));
 	}
 }
 
@@ -67,9 +67,24 @@ void Start(int thrNum, int *arr, void f(int* arr)) {
 	}
 }
 
-void Task1(int num)
+void Task1(int thrNum=4)
 {
+	ci = 1024 * 1024;
+	lock_ = 0;
+	ai = 0;
+	int* arr = new int[ci] {};
+	Start(thrNum, arr, Inc2);
+	cout <<"  --  " << thrNum <<  " threads ready\n";
+	for (int i = 0; i < ci; i++)
+	{
+		//cout << arr[i] << " ";
+		if (arr[i] != 1)
+		{
+			cout << "mistake!";
+			break;
+		}
 
+	}
 }
 
 //Task 2.1//
@@ -175,21 +190,30 @@ void Task22(int taskNum, int consumerNum, int producerNum, int qSize)
 
 int main()
 {
-	//int* arr = new int[ci] {};
-	//Start(4, arr, Inc2);
-	//cout << "ready\n";
-	//for (int i = 0; i < ci; i++)
-	//{
-	//	cout << arr[i] << " ";
-	//	if (arr[i] != 1)
-	//	{
-	//		cout << "mistake!";
-	//		//break;
-	//	}
+	////T1
+	//Task1(4);
+	//Task1(8);
+	//Task1(16);
+	//Task1(32);
+	
+	////T2_1
+	//Task21(1024 * 1024 * 4, 1, 1);
+	//cout << endl << "__________________";
+	//Task21(1024 * 1024 * 4, 2, 2);
+	//cout << endl << "__________________";
+	//Task21(1024 * 1024 * 4, 4, 4);
+	//cout << endl << "__________________";
 
-	//}
-
-	//Task21(100*100, 8, 4);
-	Task22(100 * 100, 8, 4, 16);
+	////T2_2
+	//Task22(1024 * 1024, 1, 1, 4);
+	//cout << endl << "__________________";
+	//Task22(1024 * 1024, 1, 1, 8);
+	//cout << endl << "__________________";
+	//Task22(1024 * 1024, 1, 1, 16);
+	//cout << endl << "__________________";
+	//Task22(1024 * 1024, 2, 2, 16);
+	//cout << endl << "__________________";
+	//Task22(1024 * 1024, 4, 4, 16);
+	//cout << endl << "__________________";
 
 }
