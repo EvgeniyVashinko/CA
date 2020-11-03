@@ -42,7 +42,7 @@ public:
 	}
 
 	T Pop() {
-		if (size == 0) return -1;
+		if (size == 0) return 0;
 		Node<T>* temp = this->Tail;
 		if (size == 1) {
 			Head = nullptr;
@@ -90,24 +90,16 @@ public:
 		std::unique_lock<std::mutex> g(mtx);
 		if (q.IsEmpty())
 		{
-			g.unlock();
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			g.lock();
+			//g.unlock();
+			//std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			//g.lock();
 			if (q.IsEmpty())
-			{ 
+			{
 				return false;
 			}
-			else
-			{
-				value = q.Pop();
-				return true;
-			}
 		}
-		else
-		{
-			value = q.Pop();
-			return true;
-		}
+		value = q.Pop();
+		return true;
 	}
 };
 
