@@ -34,30 +34,38 @@ int taskNum = 1024;
 int lock_ = 0, threadNum = 1;
 int cNum = 1, pNum = 1;
 
+// FIXME remove array access from critical section
 void Inc1(vector<int>& arr) {
-	for (int i = 0; i < taskNum / threadNum; i++)
+	int temp = 0;
+	while(true)
 	{
 		m.lock();
-		// FIXME remove array access from critical section
-		arr.at(lock_)++;
+		temp = lock_;
 		lock_++;
 		m.unlock();
-		this_thread::sleep_for(chrono::milliseconds(10));
+		if (temp >= taskNum)
+		{
+			break;
+		}
+		arr.at(temp)++;
+
+		//this_thread::sleep_for(chrono::milliseconds(10));
 	}
 }
 
 
 atomic<int> ai{0};
 // FIXME subsitute int* with std::vector<int> and operator [] with int at();
-void Inc2(vector<int> &arr) {
-	for (int i = 0; i < taskNum/threadNum; i++)
+void Inc2(vector<int>& arr) {
+	int temp = 0;
+	while (true)
 	{
-		if (ai >= taskNum)
+		temp = ai.fetch_add(1);
+		if (temp >= taskNum)
 		{
 			break;
 		}
-		arr.at(ai.fetch_add(1))++;
-
+		arr.at(temp)++;
 		//this_thread::sleep_for(chrono::milliseconds(10));
 	}
 }
@@ -78,7 +86,7 @@ void Start(int thrNum, vector<int> &arr, void f(vector<int> &arr)) {
 
 void Task1(int thrNum, void f(vector<int>& arr))
 {
-	taskNum = 1024;
+	taskNum = 1024*1024;
 	lock_ = 0;
 	ai = 0;
 	threadNum = thrNum;
@@ -188,10 +196,10 @@ void Task22(int taskNum, int consumerNum, int producerNum, int qSize)
 int main()
 {
 	////T1
-	//Task1(4, Inc1);
-	//Task1(8, Inc1);
-	//Task1(16, Inc1);
-	//Task1(32, Inc1);
+	Task1(4, Inc2);
+	Task1(8, Inc2);
+	Task1(16, Inc2);
+	Task1(32, Inc2);
 	
 	////T2_1
 	//Task21(1024 * 100, 1, 1);
@@ -202,15 +210,15 @@ int main()
 	//cout << endl << "__________________";
 
 	////T2_2
-	Task22(1024 * 1024, 1, 1, 4);
-	cout << endl << "__________________";
-	Task22(1024 * 1024, 1, 1, 8);
-	cout << endl << "__________________";
-	Task22(1024 * 1024, 1, 1, 16);
-	cout << endl << "__________________";
-	Task22(1024 * 1024, 2, 2, 16);
-	cout << endl << "__________________";
-	Task22(1024*1024 , 4, 4, 16);
-	cout << endl << "__________________";
+	//Task22(1024 * 1024, 1, 1, 4);
+	//cout << endl << "__________________";
+	//Task22(1024 * 1024, 1, 1, 8);
+	//cout << endl << "__________________";
+	//Task22(1024 * 1024, 1, 1, 16);
+	//cout << endl << "__________________";
+	//Task22(1024 * 1024, 2, 2, 16);
+	//cout << endl << "__________________";
+	//Task22(1024*1024 , 4, 4, 16);
+	//cout << endl << "__________________";
 
 }
